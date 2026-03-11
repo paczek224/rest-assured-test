@@ -79,14 +79,13 @@ properties src/test/resources/allure.properties
 properties allure.results.directory=target/allure-results
 
 
-
 ## Getting Started
 
 ### Prerequisites
 
 Before running the project, make sure the following tools are installed:
 
-- **Java 25**
+- **Java 21**
 - **Maven 3.9+**
 
 ### Clone the repository
@@ -181,7 +180,7 @@ This makes test cases straightforward and close to business intent.
 The project is configured with Maven plugins for:
 
 - **Surefire** for test execution
-- **Compiler Plugin** for Java 25 compilation and Lombok annotation processing
+- **Compiler Plugin** for Java 21 compilation and Lombok annotation processing
 - **Allure Maven Plugin** for reporting
 - **Checkstyle Plugin** for code quality validation
 

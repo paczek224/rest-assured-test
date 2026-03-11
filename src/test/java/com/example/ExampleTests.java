@@ -18,7 +18,7 @@ public class ExampleTests {
     @Test
     public void shouldBeAbleToAddPosts() {
         //given
-        List<Post> posts = ResponseUtils.map(resourcesActions.getAllPosts(), new TypeRef<>() {});
+        List<Post> posts = ResponseUtils.map(resourcesActions.getAllPosts(), new TypeRef<>() { });
 
         //when
         Post requestBody = Post.builder().build();
@@ -52,7 +52,7 @@ public class ExampleTests {
                 .hasStatus(404);
 
         //and
-        List<Post> allPosts = ResponseUtils.map(resourcesActions.getAllPosts(), new TypeRef<>() {});
+        List<Post> allPosts = ResponseUtils.map(resourcesActions.getAllPosts(), new TypeRef<>() { });
         Assertions.assertThat(allPosts)
                 .withFailMessage("Post with id <%s> should be deleted", createdPostId)
                 .noneMatch(post -> createdPostId.equals(post.getId()));
