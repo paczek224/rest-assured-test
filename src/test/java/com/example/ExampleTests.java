@@ -2,11 +2,8 @@ package com.example;
 
 import com.example.commons.actions.ResourcesActions;
 import com.example.commons.utils.ResponseAssert;
-import com.example.commons.utils.ResponseUtils;
 import com.example.models.Post;
-import io.restassured.common.mapper.TypeRef;
 import io.restassured.response.Response;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -18,7 +15,9 @@ public class ExampleTests {
     @Test
     public void shouldBeAbleToAddPosts() {
         //given
-        List<Post> posts = ResponseUtils.map(resourcesActions.getAllPosts(), new TypeRef<>() { });
+        List<Post> posts = ResponseAssert.assertThat(resourcesActions.getAllPosts())
+                .hasStatus(200)
+                .extractList(Post.class);
 
         //when
         Post requestBody = Post.builder().build();
@@ -30,14 +29,17 @@ public class ExampleTests {
                 .hasStringField("title", requestBody.getTitle())
                 .hasStringField("body", requestBody.getBody())
                 .hasNumberField("userId", requestBody.getUserId())
-                .hasNumberField("id", posts.size() + 1);
-
+                .as(Post.class)
+                .describedAs("Number of posts should be increased by 1")
+                .extracting(Post::getId).isEqualTo(posts.size() + 1);
     }
 
     @Test
     public void shouldBeAbleToDeletePosts() {
         //given
-        Integer createdPostId = ResponseUtils.map(resourcesActions.addPost(Post.builder().build()), Post.class).getId();
+        Integer createdPostId = ResponseAssert.assertThat(resourcesActions.addPost(Post.builder().build()))
+                .extract(Post.class)
+                .getId();
 
         //when
         Response response = resourcesActions.deletePost(createdPostId);
@@ -49,12 +51,17 @@ public class ExampleTests {
 
         //and
         ResponseAssert.assertThat(resourcesActions.getPostById(createdPostId))
-                .hasStatus(404);
+                .hasStatus(404)
+                .hasNoBody();
 
         //and
-        List<Post> allPosts = ResponseUtils.map(resourcesActions.getAllPosts(), new TypeRef<>() { });
-        Assertions.assertThat(allPosts)
-                .withFailMessage("Post with id <%s> should be deleted", createdPostId)
-                .noneMatch(post -> createdPostId.equals(post.getId()));
+        ResponseAssert.assertThat(resourcesActions.getAllPosts())
+                .hasStatus(200)
+                .asList(Post.class)
+                .withFailMessage("Post with id <%s> is NOT deleted", createdPostId)
+                .noneMatch(post -> createdPostId.equals(post.getId()))
+                .as("All posts ids should be unique")
+                .map(Post::getId)
+                .doesNotHaveDuplicates();
     }
 }

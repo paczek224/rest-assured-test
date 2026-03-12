@@ -2,6 +2,11 @@ package com.example.commons.utils;
 
 import io.restassured.response.Response;
 import org.assertj.core.api.AbstractAssert;
+import org.assertj.core.api.Assertions;
+import org.assertj.core.api.ListAssert;
+import org.assertj.core.api.ObjectAssert;
+
+import java.util.List;
 
 public class ResponseAssert extends AbstractAssert<ResponseAssert, Response> {
 
@@ -11,6 +16,28 @@ public class ResponseAssert extends AbstractAssert<ResponseAssert, Response> {
 
     public static ResponseAssert assertThat(Response response) {
         return new ResponseAssert(response);
+    }
+    
+    public <T> ObjectAssert<T> as(Class<T> clazz) {
+        return Assertions.assertThat(extract(clazz));
+    }
+
+    public <T> ListAssert<T> asList(Class<T> clazz) {
+        return asList(".", clazz);
+    }
+
+    public <T> ListAssert<T> asList(String path, Class<T> clazz) {
+        return Assertions.assertThat(actual.jsonPath().getList(path, clazz));
+    }
+
+    public <T> T extract(Class<T> clazz) {
+        isNotNull();
+        return actual.as(clazz);
+    }
+
+    public <T> List<T> extractList(Class<T> clazz) {
+        isNotNull();
+        return actual.jsonPath().getList(".", clazz);
     }
 
     public ResponseAssert hasStatus(int expectedStatus) {
@@ -33,11 +60,6 @@ public class ResponseAssert extends AbstractAssert<ResponseAssert, Response> {
         }
 
         return this;
-    }
-
-    public <T> T bodyAs(Class<T> clazz) {
-        isNotNull();
-        return ResponseUtils.map(actual, clazz);
     }
 
     public ResponseAssert hasStringField(String field, String expected) {
