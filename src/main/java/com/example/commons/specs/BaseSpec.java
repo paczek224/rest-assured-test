@@ -1,8 +1,10 @@
 package com.example.commons.specs;
 
+import com.example.commons.utils.EndpointProvider;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.builder.RequestSpecBuilder;
+import io.restassured.config.HttpClientConfig;
 import io.restassured.config.LogConfig;
 import io.restassured.config.ObjectMapperConfig;
 import io.restassured.config.RestAssuredConfig;
@@ -27,7 +29,10 @@ public abstract class BaseSpec {
     public RestAssuredConfig getBaseConfig() {
         return RestAssuredConfig.config()
                 .objectMapperConfig(getObjectMapperConfig())
-                .logConfig(LogConfig.logConfig().enablePrettyPrinting(false));
+                .logConfig(LogConfig.logConfig().enablePrettyPrinting(false))
+                .httpClient(HttpClientConfig.httpClientConfig()
+                .setParam("http.connection.timeout", EndpointProvider.connectionTimeoutInMilliseconds())
+                .setParam("http.socket.timeout", EndpointProvider.socketTimeoutInMilliseconds()));
     }
 
     private ObjectMapperConfig getObjectMapperConfig() {

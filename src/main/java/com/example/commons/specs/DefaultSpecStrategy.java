@@ -1,16 +1,13 @@
 package com.example.commons.specs;
 
+import com.example.commons.utils.EndpointProvider;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.filter.Filter;
-import io.restassured.filter.log.LogDetail;
-import io.restassured.filter.log.RequestLoggingFilter;
-import io.restassured.filter.log.ResponseLoggingFilter;
 import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.hamcrest.Matchers;
 
 import java.util.List;
 
@@ -21,8 +18,8 @@ public class DefaultSpecStrategy extends BaseSpec implements SpecStrategy {
 
     public DefaultSpecStrategy() {
         super(List.of(
-                new RequestLoggingFilter(LogDetail.URI),
-                ResponseLoggingFilter.logResponseIfStatusCodeMatches(Matchers.greaterThanOrEqualTo(500))));
+                EndpointProvider.getDefaultRequestLoggingFilterDetail(),
+                EndpointProvider.getDefaultResponseLogger()));
     }
 
     public DefaultSpecStrategy(List<Filter> filters) {

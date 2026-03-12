@@ -1,46 +1,24 @@
 package com.example.commons.utils;
 
-import io.restassured.response.Response;
 import org.assertj.core.api.AbstractAssert;
 import org.assertj.core.api.Assertions;
-import org.assertj.core.api.ListAssert;
 import org.assertj.core.api.ObjectAssert;
 
-import java.util.List;
+public class ResponseAssert<T> extends AbstractAssert<ResponseAssert<T>, ResponseWrapper<T>> {
 
-public class ResponseAssert extends AbstractAssert<ResponseAssert, Response> {
-
-    public ResponseAssert(Response actual) {
+    public ResponseAssert(ResponseWrapper<T> actual) {
         super(actual, ResponseAssert.class);
     }
 
-    public static ResponseAssert assertThat(Response response) {
-        return new ResponseAssert(response);
-    }
-    
-    public <T> ObjectAssert<T> as(Class<T> clazz) {
-        return Assertions.assertThat(extract(clazz));
+    public static <T> ResponseAssert<T> assertThat(ResponseWrapper<T> response) {
+        return new ResponseAssert<>(response);
     }
 
-    public <T> ListAssert<T> asList(Class<T> clazz) {
-        return asList(".", clazz);
+    public  ObjectAssert<T> toObjectAssert() {
+        return Assertions.assertThat(actual.getOrElseThrow());
     }
 
-    public <T> ListAssert<T> asList(String path, Class<T> clazz) {
-        return Assertions.assertThat(actual.jsonPath().getList(path, clazz));
-    }
-
-    public <T> T extract(Class<T> clazz) {
-        isNotNull();
-        return actual.as(clazz);
-    }
-
-    public <T> List<T> extractList(Class<T> clazz) {
-        isNotNull();
-        return actual.jsonPath().getList(".", clazz);
-    }
-
-    public ResponseAssert hasStatus(int expectedStatus) {
+    public ResponseAssert<T> hasStatus(int expectedStatus) {
         isNotNull();
 
         int actualStatus = actual.statusCode();
@@ -52,18 +30,18 @@ public class ResponseAssert extends AbstractAssert<ResponseAssert, Response> {
         return this;
     }
 
-    public ResponseAssert hasNoBody() {
+    public ResponseAssert<T> hasNoBody() {
         isNotNull();
 
-        if (!ResponseUtils.isEmpty(actual)) {
-            failWithMessage("Expected response body to be empty but was <%s>", actual.getBody().asString());
+        if (!ResponseUtils.isEmpty(actual.getResponse())) {
+            failWithMessage("Expected response body to be empty but was <%s>", actual.getResponse().getBody().asString());
         }
 
         return this;
     }
 
-    public ResponseAssert hasStringField(String field, String expected) {
-        String actualValue = ResponseUtils.extractString(actual, field);
+    public ResponseAssert<T> hasStringField(String field, String expected) {
+        String actualValue = ResponseUtils.extractString(actual.getResponse(), field);
 
         if (!actualValue.equals(expected)) {
             failWithMessage(
@@ -77,8 +55,8 @@ public class ResponseAssert extends AbstractAssert<ResponseAssert, Response> {
         return this;
     }
 
-    public ResponseAssert hasBooleanField(String field, boolean expected) {
-        boolean actualValue = ResponseUtils.extractBoolean(actual, field);
+    public ResponseAssert<T> hasBooleanField(String field, boolean expected) {
+        boolean actualValue = ResponseUtils.extractBoolean(actual.getResponse(), field);
 
         if (actualValue != expected) {
             failWithMessage(
@@ -92,8 +70,8 @@ public class ResponseAssert extends AbstractAssert<ResponseAssert, Response> {
         return this;
     }
 
-    public ResponseAssert hasNumberField(String field, int expected) {
-        int actualValue = ResponseUtils.extractInt(actual, field);
+    public ResponseAssert<T> hasNumberField(String field, int expected) {
+        int actualValue = ResponseUtils.extractInt(actual.getResponse(), field);
 
         if (actualValue != expected) {
             failWithMessage(

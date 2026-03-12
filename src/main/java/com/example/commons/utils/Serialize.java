@@ -14,7 +14,6 @@ public class Serialize {
         String json;
         ObjectMapper mapper = new ObjectMapper();
         if (writeNulls) {
-            mapper.addMixIn(object.getClass(), MixIn.class);
             mapper.setSerializationInclusion(JsonInclude.Include.ALWAYS);
         } else {
             mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
@@ -25,10 +24,5 @@ public class Serialize {
             throw new RuntimeException(e);
         }
         return json;
-    }
-
-    @JsonInclude(JsonInclude.Include.ALWAYS)
-    public static class MixIn {
-
     }
 }
